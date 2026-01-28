@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Clothing E-Commerce",
-  description: "Shop the latest fashion trends",
+  title: "StyleHub - Clothing E-Commerce",
+  description: "Discover premium clothing for every occasion",
 };
 
 export default function RootLayout({
@@ -17,9 +16,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+      </head>
       <body className={inter.className}>
-        <Navbar />
-        <main className="min-h-screen bg-gray-50">{children}</main>
+        <main>{children}</main>
       </body>
     </html>
   );
