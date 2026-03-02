@@ -40,14 +40,17 @@ export default function ProductForm({ product }: { product?: Product }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to save product");
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) throw new Error("You must be logged in.");
+        if (response.status === 403) throw new Error("Admin access required.");
+        throw new Error(data.error || "Failed to save product");
       }
 
       const data = await response.json();
       router.push(`/products/${data.id}`);
       router.refresh();
-    } catch (err) {
-      setError("Failed to save product. Please try again.");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Failed to save product. Please try again.");
     } finally {
       setLoading(false);
     }

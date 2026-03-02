@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/prisma";
+import { verifyToken } from "@/lib/auth";
+import { cookies } from "next/headers";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -9,6 +11,11 @@ export default async function ProductPage({
 }: {
   params: { id: string };
 }) {
+  const cookieStore = cookies();
+  const token = cookieStore.get("auth_token")?.value;
+  const payload = token ? verifyToken(token) : null;
+  const isAdmin = payload?.role === "admin";
+
   const product = await prisma.product.findUnique({
     where: { id: params.id },
   });
@@ -63,14 +70,24 @@ export default async function ProductPage({
             </div>
 
             <div className="flex gap-4">
-              <Link
-                href={`/products/${product.id}/edit`}
-                className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition text-center"
-              >
-                Edit Product
-              </Link>
-
-              <DeleteButton productId={product.id} />
+              {isAdmin ? (
+                <>
+                  <Link
+                    href={`/products/${product.id}/edit`}
+                    className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition text-center"
+                  >
+                    Edit Product
+                  </Link>
+                  <DeleteButton productId={product.id} />
+                </>
+              ) : (
+                <Link
+                  href="/"
+                  className="flex-1 bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition text-center"
+                >
+                  ← Back to Store
+                </Link>
+              )}
             </div>
           </div>
         </div>

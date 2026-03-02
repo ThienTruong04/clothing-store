@@ -20,13 +20,16 @@ export default function DeleteButton({ productId }: { productId: string }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete product");
+        const data = await response.json().catch(() => ({}));
+        if (response.status === 401) throw new Error("You must be logged in.");
+        if (response.status === 403) throw new Error("Admin access required.");
+        throw new Error(data.error || "Failed to delete product");
       }
 
       router.push("/");
       router.refresh();
-    } catch (error) {
-      alert("Failed to delete product. Please try again.");
+    } catch (error: unknown) {
+      alert(error instanceof Error ? error.message : "Failed to delete product. Please try again.");
       setLoading(false);
     }
   };

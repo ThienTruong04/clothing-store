@@ -1,25 +1,29 @@
 import { prisma } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
+import { getTokenFromRequest } from '@/lib/auth'
+import { NextRequest, NextResponse } from 'next/server'
 
-// GET /api/products - List all products
+// GET /api/products - List all products (public)
 export async function GET() {
   try {
     const products = await prisma.product.findMany({
-      orderBy: {
-        createdAt: 'desc',
-      },
+      orderBy: { createdAt: 'desc' },
     })
     return NextResponse.json(products)
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to fetch products' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
   }
 }
 
-// POST /api/products - Create a new product
-export async function POST(request: Request) {
+// POST /api/products - Create a new product (admin only)
+export async function POST(request: NextRequest) {
+  const payload = getTokenFromRequest(request)
+  if (!payload) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 })
+  }
+  if (payload.role !== 'admin') {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
+  }
+
   try {
     const body = await request.json()
     const { name, description, price, image } = body
@@ -42,9 +46,6 @@ export async function POST(request: Request) {
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
-    return NextResponse.json(
-      { error: 'Failed to create product' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 })
   }
 }
