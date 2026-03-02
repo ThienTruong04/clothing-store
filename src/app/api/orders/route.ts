@@ -2,7 +2,7 @@ import { prisma } from '@/lib/prisma'
 import { getTokenFromRequest } from '@/lib/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
-// GET /api/orders - Get current user's orders
+// GET /api/orders - Get all orders (admin) or current user's orders
 export async function GET(request: NextRequest) {
   const payload = getTokenFromRequest(request)
   if (!payload) {
@@ -10,6 +10,19 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    if (payload.role === 'admin') {
+      // Admin: get all orders with user info
+      const orders = await prisma.order.findMany({
+        include: {
+          items: true,
+          user: { select: { id: true, name: true, email: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+      return NextResponse.json(orders)
+    }
+
+    // Regular user: only their own orders
     const orders = await prisma.order.findMany({
       where: { userId: payload.userId },
       include: { items: true },

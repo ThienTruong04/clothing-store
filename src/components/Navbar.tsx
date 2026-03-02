@@ -61,8 +61,8 @@ export default function Navbar() {
                 </Link>
                 {isAdmin && (
                   <Link
-                    href="/?view=admin"
-                    className={`px-4 py-2 rounded-lg transition ${isActive('/?view=admin')}`}
+                    href="/admin/orders"
+                    className={`px-4 py-2 rounded-lg transition ${isActive('/admin/orders')}`}
                   >
                     <i className="fas fa-shield-alt mr-2"></i>Admin
                   </Link>
@@ -151,7 +151,7 @@ export default function Navbar() {
               </Link>
               {isAdmin && (
                 <Link
-                  href="/?view=admin"
+                  href="/admin/orders"
                   onClick={() => setMobileOpen(false)}
                   className="block px-4 py-2 rounded hover:bg-white/20"
                 >
